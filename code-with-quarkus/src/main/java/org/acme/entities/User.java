@@ -24,19 +24,19 @@ public class User extends PanacheEntity {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "movie_id")
     )
-    List<Movies> movies;
+    List<Movie> moviesList;
     @ManyToMany
     @JoinTable(
             name = "user_series",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "series_id")
     )
-    List<Series> series;
+    List<Series> seriesList;
     @ManyToMany
     @JoinTable(
             name = "user_games",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "game_id")
     )
-    List<Games> games;
+    List<VideoGame> videoGamesList;
 }
