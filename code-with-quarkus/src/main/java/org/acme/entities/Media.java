@@ -5,7 +5,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.MappedSuperclass;
-import org.acme.enums.MediaGenre;
 
 @MappedSuperclass
 public class Media extends PanacheEntity {
@@ -18,6 +17,21 @@ public class Media extends PanacheEntity {
     protected MediaGenre genre;
     @Column(name = "rating")
     protected double rating;
+
+    public enum MediaGenre {
+        DRAMA,
+        HORROR,
+        CRIME,
+        THRILLER,
+        ACTION,
+        ADVENTURE,
+        SCI_FI,
+        COMEDY,
+        ROMANTIC,
+        DOCUMENTARY,
+        ANIMATION,
+        FANTASY
+    }
 
     public String getImageUri() {
         return imageUri;

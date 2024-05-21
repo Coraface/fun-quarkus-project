@@ -12,7 +12,7 @@ import java.util.Set;
 public class VideoGame extends Media {
     @Column(name = "developer")
     private String developer;
-    @ManyToMany(mappedBy = "gamesList")
+    @ManyToMany(mappedBy = "videoGamesList")
     private Set<User> users;
 
     public String getDeveloper() {
