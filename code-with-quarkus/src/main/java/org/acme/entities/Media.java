@@ -1,18 +1,33 @@
 package org.acme.entities;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.MappedSuperclass;
+import lombok.Getter;
+import lombok.Setter;
 
+import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.DEDUCTION;
+
+@Setter
+@Getter
 @MappedSuperclass
-public class Media extends PanacheEntity {
-    @Column(nullable = false, name = "title")
+@JsonTypeInfo(use = DEDUCTION)
+@JsonSubTypes({
+        @JsonSubTypes.Type(Movie.class),
+        @JsonSubTypes.Type(Series.class),
+        @JsonSubTypes.Type(VideoGame.class)
+})
+public abstract class Media extends PanacheEntity {
+    @Column(nullable = false)
     protected String title;
+    @Column(nullable = false)
+    protected int year;
     @Column(name = "image_uri")
     protected String imageUri;
-    @Column(name = "genre")
     @Enumerated(EnumType.STRING)
     protected MediaGenre genre;
     @Column(name = "rating")
@@ -33,35 +48,9 @@ public class Media extends PanacheEntity {
         FANTASY
     }
 
-    public String getImageUri() {
-        return imageUri;
-    }
-
-    public void setImageUri(String imageUri) {
-        this.imageUri = imageUri;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public MediaGenre getGenre() {
-        return genre;
-    }
-
-    public void setGenre(MediaGenre genre) {
-        this.genre = genre;
-    }
-
-    public double getRating() {
-        return rating;
-    }
-
-    public void setRating(double rating) {
-        this.rating = rating;
+    public enum MediaType {
+        MOVIE,
+        SERIES,
+        VIDEO_GAME
     }
 }

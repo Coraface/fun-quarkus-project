@@ -4,40 +4,23 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "movies")
+@Setter
+@Getter
+@Table(name = "series")
 public class Series extends Media {
-    @Column(nullable = false, name = "seasons")
+    @Column(nullable = false)
     private int seasons;
-    @Column(nullable = false, name = "episodes")
+    @Column(nullable = false)
     private int episodes;
-    @ManyToMany(mappedBy = "seriesList")
-    private Set<User> users;
-
-    public int getSeasons() {
-        return seasons;
-    }
-
-    public void setSeasons(int seasons) {
-        this.seasons = seasons;
-    }
-
-    public int getEpisodes() {
-        return episodes;
-    }
-
-    public void setEpisodes(int episodes) {
-        this.episodes = episodes;
-    }
-
-    public Set<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(Set<User> users) {
-        this.users = users;
-    }
+    @ManyToMany(mappedBy = "wantedSeriesList")
+    private Set<User> usersThatWant = new HashSet<>();
+    @ManyToMany(mappedBy = "watchedSeriesList")
+    private Set<User> usersThatWatched = new HashSet<>();
 }

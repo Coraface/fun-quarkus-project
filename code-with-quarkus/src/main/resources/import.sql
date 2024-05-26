@@ -1,6 +1,95 @@
--- This file allow to write SQL commands that will be emitted in test and dev.
--- The commands are commented as their support depends of the database
--- insert into myentity (id, field) values(1, 'field-1');
--- insert into myentity (id, field) values(2, 'field-2');
--- insert into myentity (id, field) values(3, 'field-3');
--- alter sequence myentity_seq restart with 4;
+-- Create users table
+--CREATE TABLE IF NOT EXISTS users (
+--    id SERIAL PRIMARY KEY,
+--    username VARCHAR(255) UNIQUE NOT NULL,
+--    fullname VARCHAR(255),
+--    email VARCHAR(255) UNIQUE NOT NULL,
+--    photo_uri VARCHAR(255),
+--    bio VARCHAR(500)
+--);
+--
+---- Create movies table (assuming the Movie entity exists)
+--CREATE TABLE IF NOT EXISTS movies (
+--    id SERIAL PRIMARY KEY,
+--    title VARCHAR(255),
+--    image_uri VARCHAR(255),
+--    genre VARCHAR(50),
+--    rating DOUBLE PRECISION,
+--    duration_minutes INTEGER,
+--    director VARCHAR(255)
+--);
+--
+---- Create series table (assuming the Series entity exists)
+--CREATE TABLE IF NOT EXISTS series (
+--    id SERIAL PRIMARY KEY,
+--    title VARCHAR(255),
+--    image_uri VARCHAR(255),
+--    genre VARCHAR(50),
+--    rating DOUBLE PRECISION,
+--    seasons INTEGER
+--);
+--
+---- Create video_games table (assuming the VideoGame entity exists)
+--CREATE TABLE IF NOT EXISTS video_games (
+--    id SERIAL PRIMARY KEY,
+--    title VARCHAR(255),
+--    image_uri VARCHAR(255),
+--    genre VARCHAR(50),
+--    rating DOUBLE PRECISION,
+--    platform VARCHAR(255)
+--);
+--
+---- Create watched_movies join table
+--CREATE TABLE IF NOT EXISTS watched_movies (
+--    user_id INTEGER REFERENCES users(id),
+--    movie_id INTEGER REFERENCES movies(id),
+--    PRIMARY KEY (user_id, movie_id)
+--);
+--
+---- Create wanted_movies join table
+--CREATE TABLE IF NOT EXISTS wanted_movies (
+--    user_id INTEGER REFERENCES users(id),
+--    movie_id INTEGER REFERENCES movies(id),
+--    PRIMARY KEY (user_id, movie_id)
+--);
+--
+---- Create watched_series join table
+--CREATE TABLE IF NOT EXISTS watched_series (
+--    user_id INTEGER REFERENCES users(id),
+--    series_id INTEGER REFERENCES series(id),
+--    PRIMARY KEY (user_id, series_id)
+--);
+--
+---- Create wanted_series join table
+--CREATE TABLE IF NOT EXISTS wanted_series (
+--    user_id INTEGER REFERENCES users(id),
+--    series_id INTEGER REFERENCES series(id),
+--    PRIMARY KEY (user_id, series_id)
+--);
+--
+---- Create played_video_games join table
+--CREATE TABLE IF NOT EXISTS played_games (
+--    user_id INTEGER REFERENCES users(id),
+--    game_id INTEGER REFERENCES video_games(id),
+--    PRIMARY KEY (user_id, game_id)
+--);
+--
+---- Create wanted_video_games join table
+--CREATE TABLE IF NOT EXISTS wanted_games (
+--    user_id INTEGER REFERENCES users(id),
+--    game_id INTEGER REFERENCES video_games(id),
+--    PRIMARY KEY (user_id, game_id)
+--);
+--
+---- Create friendships table
+--CREATE TABLE IF NOT EXISTS friendship (
+--    id SERIAL PRIMARY KEY,
+--    user_id INTEGER REFERENCES users(id),
+--    friend_id INTEGER REFERENCES users(id),
+--    status VARCHAR(50)
+--);
+
+INSERT INTO users (id, username, fullname, email) VALUES (1, 'coraface', 'Christ Cho', 'xrhstosxw@gmail.com');
+INSERT INTO users (id, username, fullname, email) VALUES (2, 'tester1', 'Tester1', 'tester1@gmail.com');
+INSERT INTO users (id, username, fullname, email) VALUES (3, 'tester2', 'Tester2', 'tester2@gmail.com');
+ALTER SEQUENCE users_seq RESTART WITH 4;

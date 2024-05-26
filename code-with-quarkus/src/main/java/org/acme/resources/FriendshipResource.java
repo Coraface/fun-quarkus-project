@@ -5,6 +5,8 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
+import org.acme.dtos.FriendshipDTO;
+import org.acme.dtos.UserDTO;
 import org.acme.entities.Friendship;
 import org.acme.entities.User;
 import org.acme.services.FriendshipService;
@@ -12,45 +14,43 @@ import org.acme.services.FriendshipService;
 import java.util.List;
 import java.util.Set;
 
-@Path("/users/{userId}/friends")
+@Path("/users/{username}/friends")
 @ApplicationScoped
 public class FriendshipResource {
 
-    @Inject
-    FriendshipService friendshipService;
+  @Inject FriendshipService friendshipService;
 
-    @POST
-    @Path("/{friendId}")
-    @Transactional
-    public Response sendFriendRequest(@PathParam("userId") Long userId, @PathParam("friendId") Long friendId) {
-        friendshipService.sendFriendRequest(userId, friendId);
-        return Response.ok().build();
-    }
+  @POST
+  @Path("/{friend_username}")
+  public Response sendFriendRequest(
+      @PathParam("username") String userName, @PathParam("friend_username") String friendUserName) {
+    return friendshipService.sendFriendRequest(userName, friendUserName);
+  }
 
-    @PUT
-    @Path("/{friendId}/accept")
-    @Transactional
-    public Response acceptFriendRequest(@PathParam("userId") Long recipientId, @PathParam("friendId") Long requesterId) {
-        friendshipService.acceptFriendRequest(recipientId, requesterId);
-        return Response.ok().build();
-    }
+  @PUT
+  @Path("/{friend_username}/accept")
+  public Response acceptFriendRequest(
+      @PathParam("username") String recipientUserName,
+      @PathParam("friend_username") String requesterUserName) {
+    return friendshipService.acceptFriendRequest(recipientUserName, requesterUserName);
+  }
 
-    @PUT
-    @Path("/{friendId}/reject")
-    @Transactional
-    public Response rejectFriendRequest(@PathParam("userId") Long recipientId, @PathParam("friendId") Long requesterId) {
-        friendshipService.rejectFriendRequest(recipientId, requesterId);
-        return Response.ok().build();
-    }
+  @PUT
+  @Path("/{friend_username}/reject")
+  public Response rejectFriendRequest(
+      @PathParam("username") String recipientUserName,
+      @PathParam("friend_username") String requesterUserName) {
+    return friendshipService.rejectFriendRequest(recipientUserName, requesterUserName);
+  }
 
-    @GET
-    public Set<User> getFriends(@PathParam("userId") Long userId) {
-        return friendshipService.getFriends(userId);
-    }
+  @GET
+  public List<UserDTO> getFriends(@PathParam("username") String userName) {
+    return friendshipService.getFriends(userName);
+  }
 
-    @GET
-    @Path("/friendships")
-    public List<Friendship> getFriendships() {
-        return Friendship.findAll().list();
-    }
+  @GET
+  @Path("/friendships")
+  public List<FriendshipDTO> getFriendships() {
+    return Friendship.findAll().project(FriendshipDTO.class).list();
+  }
 }

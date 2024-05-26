@@ -3,20 +3,28 @@ package org.acme.services;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.Response;
+import org.acme.dtos.FriendshipDTO;
+import org.acme.dtos.UserDTO;
 import org.acme.entities.Friendship;
 import org.acme.entities.User;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @ApplicationScoped
 public class FriendshipService {
 
     @Transactional
-    public void sendFriendRequest(Long requesterId, Long recipientId) {
-        User requester = User.findById(requesterId);
-        User recipient = User.findById(recipientId);
+    public Response sendFriendRequest(String requesterUserName, String recipientUserName) {
+        User requester = User.find("userName", requesterUserName).firstResult();
+        User recipient = User.find("userName", recipientUserName).firstResult();
+
+        // Check if there is an existing friendship request
+        Optional<Friendship> existingFriendship = Friendship.find("#Friendship.findAnyPending", Parameters.with("userName", requesterUserName).and("friendUserName", recipientUserName))
+                .firstResultOptional();
+        if (existingFriendship.isPresent()) {
+            return Response.status(Response.Status.CONFLICT).entity("Friend request already sent.").build();
+        }
 
         Friendship friendship = new Friendship();
         friendship.setRequester(requester);
@@ -24,24 +32,31 @@ public class FriendshipService {
         friendship.setStatus(Friendship.FriendshipStatus.PENDING);
 
         friendship.persist();
+        return Response.ok().entity("Friend request sent.").build();
     }
 
     @Transactional
-    public void acceptFriendRequest(Long recipientId, Long requesterId) {
-        Friendship friendship = Friendship.find("#Friendship.findPending", Parameters.with("userId", requesterId).and("friendId", recipientId)).firstResult();
-        if (friendship != null) {
-            friendship.setStatus(Friendship.FriendshipStatus.ACCEPTED);
-            friendship.persist();
+    public Response acceptFriendRequest(String recipientUserName, String requesterUserName) {
+        Optional<Friendship> friendshipOptional = Friendship.find("#Friendship.findPending", Parameters.with("userName", requesterUserName).and("friendUserName", recipientUserName)).firstResultOptional();
+        if (friendshipOptional.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Friend request not found or already handled.").build();
         }
+        Friendship friendship = friendshipOptional.get();
+        friendship.setStatus(Friendship.FriendshipStatus.ACCEPTED);
+        friendship.persist();
+        return Response.ok().entity("Friend request accepted.").build();
     }
 
     @Transactional
-    public void rejectFriendRequest(Long recipientId, Long requesterId) {
-        Friendship friendship = Friendship.find("#Friendship.findPending", Parameters.with("userId", requesterId).and("friendId", recipientId)).firstResult();
-        if (friendship != null) {
-            friendship.setStatus(Friendship.FriendshipStatus.REJECTED);
-            friendship.persist();
+    public Response rejectFriendRequest(String recipientUserName, String requesterUserName) {
+        Optional<Friendship> friendshipOptional = Friendship.find("#Friendship.findPending", Parameters.with("userName", requesterUserName).and("friendUserName", recipientUserName)).firstResultOptional();
+        if (friendshipOptional.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Friend request not found or already handled.").build();
         }
+        Friendship friendship = friendshipOptional.get();
+        friendship.setStatus(Friendship.FriendshipStatus.REJECTED);
+        friendship.delete();
+        return Response.ok().entity("Friend request rejected.").build();
     }
 
 //    public Set<Friendship> getFriends(Long userId) {
@@ -49,16 +64,17 @@ public class FriendshipService {
 //        return user.getFriendships();
 //    }
 
-    public Set<User> getFriends(Long userId) {
-        List<Friendship> friendships = Friendship.find("#Friendship.findAccepted", Parameters.with("userId", userId)).list();
-        Set<User> friends = new HashSet<>();
-
-        for (Friendship friendship : friendships) {
-            if (friendship.getRequester().id.equals(userId)) {
-                friends.add(friendship.getRecipient());
+    public List<UserDTO> getFriends(String userName) {
+        List<Friendship> friendships = Friendship.find("#Friendship.findAccepted", Parameters.with("userName", userName)).list();
+        List<UserDTO> friends = new ArrayList<>();
+        for (Friendship f : friendships) {
+            UserDTO userDTO;
+            if (userName.equals(f.getRecipient().getUserName())) {
+                userDTO = new UserDTO(f.getRequester());
             } else {
-                friends.add(friendship.getRequester());
+                userDTO = new UserDTO(f.getRecipient());
             }
+            friends.add(userDTO);
         }
         return friends;
     }

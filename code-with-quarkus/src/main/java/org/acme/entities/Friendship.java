@@ -2,14 +2,20 @@ package org.acme.entities;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Objects;
 
 @Entity
+@Setter
+@Getter
 @Table(name = "friendship")
 @NamedQueries({
-        @NamedQuery(name = "Friendship.findPending", query = "SELECT f FROM Friendship f WHERE f.requester.id = :userId AND f.recipient.id = :friendId AND f.status = 'PENDING'"),
-        @NamedQuery(name = "Friendship.findAccepted", query = "SELECT f FROM Friendship f WHERE f.requester.id = :userId OR f.recipient.id = :userId AND f.status = 'ACCEPTED'")
+        @NamedQuery(name = "Friendship.findAnyPending", query = "SELECT f FROM Friendship f WHERE (f.requester.userName = :userName AND f.recipient.userName = :friendUserName) OR (f.recipient.userName = :userName AND f.requester.userName = :friendUserName) AND f.status = 'PENDING'"),
+        @NamedQuery(name = "Friendship.findPending", query = "SELECT f FROM Friendship f WHERE (f.requester.userName = :userName AND f.recipient.userName = :friendUserName) AND f.status = 'PENDING'"),
+        @NamedQuery(name = "Friendship.findAccepted", query = "SELECT f FROM Friendship f WHERE (f.requester.userName = :userName OR f.recipient.userName = :userName) AND f.status = 'ACCEPTED'")
 })
 public class Friendship extends PanacheEntity {
 
@@ -28,58 +34,5 @@ public class Friendship extends PanacheEntity {
         PENDING,
         ACCEPTED,
         REJECTED
-    }
-
-    public Friendship() {
-    }
-
-    public Friendship(User requester, User recipient) {
-        this.requester = requester;
-        this.recipient = recipient;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public User getRequester() {
-        return requester;
-    }
-
-    public void setRequester(User requester) {
-        this.requester = requester;
-    }
-
-    public User getRecipient() {
-        return recipient;
-    }
-
-    public void setRecipient(User recipient) {
-        this.recipient = recipient;
-    }
-
-    public FriendshipStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(FriendshipStatus status) {
-        this.status = status;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Friendship that = (Friendship) o;
-        return Objects.equals(requester, that.requester) && Objects.equals(recipient, that.recipient);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(requester, recipient);
     }
 }

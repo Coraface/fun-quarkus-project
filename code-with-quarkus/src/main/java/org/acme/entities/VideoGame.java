@@ -1,33 +1,22 @@
 package org.acme.entities;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Setter
+@Getter
 @Table(name = "video_games")
 public class VideoGame extends Media {
-    @Column(name = "developer")
     private String developer;
-    @ManyToMany(mappedBy = "videoGamesList")
-    private Set<User> users;
-
-    public String getDeveloper() {
-        return developer;
-    }
-
-    public void setDeveloper(String developer) {
-        this.developer = developer;
-    }
-
-    public Set<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(Set<User> users) {
-        this.users = users;
-    }
+    @ManyToMany(mappedBy = "wantedVideoGamesList")
+    private Set<User> usersThatWant = new HashSet<>();
+    @ManyToMany(mappedBy = "playedVideoGamesList")
+    private Set<User> usersThatPlayed = new HashSet<>();
 }
