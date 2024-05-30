@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -13,7 +14,12 @@ import java.util.Set;
 @Getter
 @Table(name = "users")
 @NamedQueries({
-        @NamedQuery(name = "User.findExistingWantedMovies", query = "SELECT u FROM User u LEFT JOIN FETCH u.wantedMoviesList WHERE u.userName = :userName")
+  @NamedQuery(
+      name = "User.findExistingMovies",
+      // We use JOIN FETCH so that Hibernate initializes the mapped association,
+      // in this case wantedMoviesList
+      query =
+          "SELECT u FROM User u LEFT JOIN FETCH u.wantedMoviesList LEFT JOIN FETCH u.watchedMoviesList WHERE u.userName = :userName"),
 })
 public class User extends PanacheEntity {
 
@@ -31,42 +37,42 @@ public class User extends PanacheEntity {
   @Column(length = 500)
   private String bio;
 
-  @ManyToMany(cascade = CascadeType.PERSIST)
+  @ManyToMany
   @JoinTable(
       name = "watched_movies",
       joinColumns = @JoinColumn(name = "user_id"),
       inverseJoinColumns = @JoinColumn(name = "movie_id"))
   private Set<Movie> watchedMoviesList = new HashSet<>();
 
-  @ManyToMany(cascade = CascadeType.PERSIST)
+  @ManyToMany
   @JoinTable(
       name = "wanted_movies",
       joinColumns = @JoinColumn(name = "user_id"),
       inverseJoinColumns = @JoinColumn(name = "movie_id"))
   private Set<Movie> wantedMoviesList = new HashSet<>();
 
-  @ManyToMany(cascade = CascadeType.PERSIST)
+  @ManyToMany
   @JoinTable(
       name = "watched_series",
       joinColumns = @JoinColumn(name = "user_id"),
       inverseJoinColumns = @JoinColumn(name = "series_id"))
   private Set<Series> watchedSeriesList = new HashSet<>();
 
-  @ManyToMany(cascade = CascadeType.PERSIST)
+  @ManyToMany
   @JoinTable(
       name = "wanted_series",
       joinColumns = @JoinColumn(name = "user_id"),
       inverseJoinColumns = @JoinColumn(name = "series_id"))
   private Set<Series> wantedSeriesList = new HashSet<>();
 
-  @ManyToMany(cascade = CascadeType.PERSIST)
+  @ManyToMany
   @JoinTable(
       name = "played_games",
       joinColumns = @JoinColumn(name = "user_id"),
       inverseJoinColumns = @JoinColumn(name = "game_id"))
   private Set<VideoGame> playedVideoGamesList = new HashSet<>();
 
-  @ManyToMany(cascade = CascadeType.PERSIST)
+  @ManyToMany
   @JoinTable(
       name = "wanted_games",
       joinColumns = @JoinColumn(name = "user_id"),
@@ -94,5 +100,62 @@ public class User extends PanacheEntity {
     } else {
       playedVideoGamesList.add((VideoGame) media);
     }
+  }
+
+  public <T extends Media> Set<T> getWantedMediaList(T media) {
+    if (media instanceof Movie) {
+      return (Set<T>) getWantedMoviesList();
+    } else if (media instanceof Series) {
+      return (Set<T>) getWantedSeriesList();
+    } else if (media instanceof VideoGame) {
+      return (Set<T>) getWantedVideoGamesList();
+    } else {
+      return Set.of();
+    }
+  }
+
+  public <T extends Media> Set<T> getFinishedMediaList(T media) {
+    if (media instanceof Movie) {
+      return (Set<T>) getWatchedMoviesList();
+    } else if (media instanceof Series) {
+      return (Set<T>) getWatchedSeriesList();
+    } else if (media instanceof VideoGame) {
+      return (Set<T>) getPlayedVideoGamesList();
+    } else {
+      return Set.of();
+    }
+  }
+
+  public <T extends Media> void addUserToWantedMedia(User user, T media) {
+    if (media instanceof Movie) {
+      ((Movie) media).getUsersThatWant().add(user);
+    } else if (media instanceof Series) {
+      ((Series) media).getUsersThatWant().add(user);
+    } else if (media instanceof VideoGame) {
+      ((VideoGame) media).getUsersThatWant().add(user);
+    }
+  }
+
+  public <T extends Media> void addUserToWatchedMedia(User user, T media) {
+    if (media instanceof Movie) {
+      ((Movie) media).getUsersThatWatched().add(user);
+    } else if (media instanceof Series) {
+      ((Series) media).getUsersThatWatched().add(user);
+    } else if (media instanceof VideoGame) {
+      ((VideoGame) media).getUsersThatPlayed().add(user);
+    }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    User user = (User) o;
+    return userName.equals(user.userName) && email.equals(user.email);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(userName, email);
   }
 }

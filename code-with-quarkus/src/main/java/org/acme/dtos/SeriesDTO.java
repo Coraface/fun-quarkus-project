@@ -1,21 +1,15 @@
 package org.acme.dtos;
 
+import lombok.AllArgsConstructor;
 import org.acme.entities.Media.MediaGenre;
 
-public final class SeriesDTO {
+@AllArgsConstructor
+public final class SeriesDTO implements MediaDTO {
     public String title;
+    public int year;
     public String imageUri;
     public MediaGenre genre;
     public double rating;
     public int episodes;
     public int seasons;
-
-    public SeriesDTO(String title, String imageUri, MediaGenre genre, double rating, int episodes, int seasons) {
-        this.title = title;
-        this.imageUri = imageUri;
-        this.genre = genre;
-        this.rating = rating;
-        this.episodes = episodes;
-        this.seasons = seasons;
-    }
 }

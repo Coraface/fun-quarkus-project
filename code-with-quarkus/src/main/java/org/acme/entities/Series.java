@@ -23,4 +23,24 @@ public class Series extends Media {
     private Set<User> usersThatWant = new HashSet<>();
     @ManyToMany(mappedBy = "watchedSeriesList")
     private Set<User> usersThatWatched = new HashSet<>();
+
+    @Override
+    public void addUserToWantedMedia(User user) {
+        usersThatWant.add(user);
+    }
+
+    @Override
+    public void addUserToFinishedMedia(User user) {
+        usersThatWatched.add(user);
+    }
+
+    @Override
+    public Set<User> getUsersThatWantMedia() {
+        return getUsersThatWant();
+    }
+
+    @Override
+    public Set<User> getUsersThatFinishedMedia() {
+        return getUsersThatWatched();
+    }
 }

@@ -19,10 +19,19 @@ import java.util.Set;
           "SELECT m.title, m.year, m.imageUri, m.genre, m.rating, m.durationMinutes, m.director FROM Movie m JOIN "
               + "m.usersThatWant u WHERE u.userName = :userName"),
   @NamedQuery(
+      name = "Movie.findWatchedMovies",
+      query =
+          "SELECT m.title, m.year, m.imageUri, m.genre, m.rating, m.durationMinutes, m.director FROM Movie m JOIN "
+              + "m.usersThatWatched u WHERE u.userName = :userName"),
+  @NamedQuery(
       name = "Movie.findExistingWantedMovies",
       query =
           "SELECT m.title, m.year, m.imageUri, m.genre, m.rating, m.durationMinutes, m.director FROM Movie m JOIN "
-              + "m.usersThatWant u WHERE m.title = :title AND m.year = :year AND u.userName = :userName")
+              + "m.usersThatWant u WHERE m.title = :title AND m.year = :year AND u.userName = :userName"),
+  @NamedQuery(
+      name = "Movie.findExistingWantedMovie",
+      query =
+          "SELECT m FROM Movie m JOIN m.usersThatWant u WHERE m.title = :title AND m.year = :year")
 })
 public class Movie extends Media {
   @Column(nullable = false, name = "duration_minutes")
@@ -38,15 +47,22 @@ public class Movie extends Media {
   private Set<User> usersThatWatched = new HashSet<>();
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    Movie movie = (Movie) o;
-    return title.equals(movie.title) && year == movie.year;
+  public void addUserToWantedMedia(User user) {
+    usersThatWant.add(user);
   }
 
   @Override
-  public int hashCode() {
-    return Objects.hash(title, year);
+  public void addUserToFinishedMedia(User user) {
+    usersThatWatched.add(user);
+  }
+
+  @Override
+  public Set<User> getUsersThatWantMedia() {
+    return getUsersThatWant();
+  }
+
+  @Override
+  public Set<User> getUsersThatFinishedMedia() {
+    return getUsersThatWatched();
   }
 }
